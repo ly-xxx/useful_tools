@@ -26,7 +26,7 @@ import fitz  # PyMuPDF
 TEMP_DIR = None
 OUTPUT_DIR = None
 SUPPORTED_ARCHIVES = ['.zip', '.rar', '.7z', '.tar', '.gz', '.bz2', '.xz']
-SUPPORTED_DOCUMENTS = ['.doc', '.docx', '.pdf', '.ppt', '.pptx']
+SUPPORTED_DOCUMENTS = ['.doc', '.docx', '.pdf', '.ppt', '.pptx', '.xls', '.xlsx']
 
 
 def setup_environment():
@@ -161,6 +161,49 @@ def convert_ppt_to_pdf(ppt_path, output_path):
             return False
 
 
+def convert_excel_to_pdf(xls_path, output_path):
+    """将Excel文件转换为PDF"""
+    try:
+        # 尝试使用COM自动化（Windows）
+        import win32com.client
+        print(f"正在转换Excel: {os.path.basename(xls_path)}")
+        excel = win32com.client.Dispatch("Excel.Application")
+        excel.Visible = False
+        
+        # 打开并转换
+        workbook = excel.Workbooks.Open(xls_path)
+        workbook.ExportAsFixedFormat(0, output_path)  # 0 = PDF格式
+        workbook.Close(False)  # 不保存更改
+        excel.Quit()
+        
+        return os.path.exists(output_path)
+    except Exception as e:
+        print(f"使用COM自动化转换Excel失败，尝试LibreOffice: {e}")
+        try:
+            # 尝试使用LibreOffice (跨平台)
+            output_dir = os.path.dirname(output_path)
+            subprocess.run([
+                'soffice',
+                '--headless',
+                '--convert-to', 'pdf',
+                '--outdir', output_dir,
+                xls_path
+            ], check=True)
+            
+            # 检查输出文件
+            filename = os.path.splitext(os.path.basename(xls_path))[0] + '.pdf'
+            generated_pdf = os.path.join(output_dir, filename)
+            
+            # 如果生成的PDF文件名与期望的不同，则重命名
+            if generated_pdf != output_path and os.path.exists(generated_pdf):
+                os.rename(generated_pdf, output_path)
+                
+            return os.path.exists(output_path)
+        except Exception as e2:
+            print(f"使用LibreOffice转换Excel失败: {e2}")
+            return False
+
+
 def convert_document_to_pdf(doc_path, output_dir):
     """将文档转换为PDF"""
     filename = os.path.basename(doc_path)
@@ -171,6 +214,8 @@ def convert_document_to_pdf(doc_path, output_dir):
         return convert_word_to_pdf(doc_path, output_path)
     elif ext.lower() in ['.ppt', '.pptx']:
         return convert_ppt_to_pdf(doc_path, output_path)
+    elif ext.lower() in ['.xls', '.xlsx']:
+        return convert_excel_to_pdf(doc_path, output_path)
     elif ext.lower() == '.pdf':
         # 直接复制PDF文件
         try:

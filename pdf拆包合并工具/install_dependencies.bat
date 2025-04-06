@@ -21,7 +21,7 @@ conda create -y -n doc_processor python=3.8
 call conda activate doc_processor
 
 :: 安装依赖
-pip install patool pyunpack python-docx docx2pdf PyPDF2 pikepdf pymupdf python-pptx pywin32
+pip install patool pyunpack python-docx docx2pdf PyPDF2 pikepdf pymupdf python-pptx pywin32 openpyxl
 
 if %ERRORLEVEL% neq 0 (
     echo 安装依赖项时出错。请检查网络连接并重试。

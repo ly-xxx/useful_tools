@@ -40,6 +40,7 @@ python doc_processor.py D:\文档路径
 - 自动解压缩各种格式（zip、rar、7z等）
 - 支持嵌套压缩包的解压
 - 将Word文档和PPT转换为PDF
+- 将Excel表格转换为PDF
 - 合并所有PDF为一个文件
 - 输出文件保存在原始目录下
 
