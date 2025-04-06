@@ -1,0 +1,17 @@
+name: doc_processor
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - patool           # 用于解压缩
+    - pyunpack         # 用于解压缩
+    - python-docx      # Word文档处理
+    - docx2pdf         # Word转PDF
+    - PyPDF2>=3.0.0    # PDF处理
+    - pikepdf          # PDF处理备选方案
+    - pymupdf          # PDF处理备选方案
+    - python-pptx      # PPT处理
+    - pywin32          # Windows COM自动化 
